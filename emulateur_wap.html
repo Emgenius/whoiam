@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Emgenius W@p</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Courier New", monospace;
+    background: #2b2b2b;
+    background-image: radial-gradient(circle at 30% 20%, #3a3a3a, #1a1a1a);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 10px;
+    min-height: 100vh;
+    margin: 0;
+    color: #eee;
+  }
+  .wrap {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .phone {
+    width: 260px;
+    background: linear-gradient(180deg, #5b5f66, #3a3d42);
+    border-radius: 30px;
+    padding: 18px 16px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 0 2px #222;
+    border: 2px solid #1c1d1f;
+  }
+  .brand {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #cfd3d8;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 0 #000;
+  }
+  .screen-frame {
+    background: #111;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: inset 0 0 6px #000;
+  }
+  .screen {
+    background: #9fc27a;
+    background: linear-gradient(180deg, #a9cf82, #94bb6f);
+    height: 240px;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #1a2b0d;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.35);
+  }
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    border-bottom: 1px solid #1a2b0d;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    opacity: 0.8;
+  }
+  .wml-title {
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .wml-link {
+    display: block;
+    color: #0b3d91;
+    cursor: pointer;
+    margin: 4px 0;
+  }
+  .wml-link:before { content: "> "; }
+  .wml-link:hover { text-decoration: underline; }
+  .wml-link.focused {
+    background: #1a2b0d;
+    color: #d6f5a8;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+  /* Touches "soft" (Accueil / Options) — position des vieilles touches
+     contextuelles bleues sous l'écran d'un mobile type Nokia 7110 */
+  .softkeys-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .softkey {
+    flex: 1;
+    text-align: center;
+    background: linear-gradient(180deg, #3a6fa5, #26507e);
+    border-radius: 8px 8px 4px 4px;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: #dfe9f5;
+    padding: 7px 4px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 #17324f, inset 0 1px 1px rgba(255,255,255,0.25);
+  }
+  .softkey:active { transform: translateY(1px); box-shadow: none; }
+  .softkey.home::before    { content: "⌂ "; }
+  .softkey.options::before { content: "⚙ "; }
+
+  /* Pavé directionnel (navigation dans les menus WML) */
+  .navcross {
+    margin: 10px auto 0;
+    display: grid;
+    grid-template-columns: 34px 34px 34px;
+    grid-template-rows: 26px 26px 26px;
+    gap: 5px;
+    justify-content: center;
+  }
+  .key {
+    background: linear-gradient(180deg, #7a7f87, #4c4f55);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #eee;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2);
+    user-select: none;
+  }
+  .key:active { transform: translateY(1px); box-shadow: none; }
+  .navcross .up     { grid-column: 2; grid-row: 1; }
+  .navcross .left   { grid-column: 1; grid-row: 2; }
+  .navcross .center { grid-column: 2; grid-row: 2; font-size: 10px; }
+  .navcross .right  { grid-column: 3; grid-row: 2; }
+  .navcross .down   { grid-column: 2; grid-row: 3; }
+
+  /* Touches Appel (verte, sous Accueil) / Fin (rouge, sous Options) */
+  .callrow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 6px;
+  }
+  .callbtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+  }
+  .callbtn:active { transform: translateY(1px); box-shadow: none; }
+  .callbtn.call { background: linear-gradient(180deg, #4caf50, #2e7d32); }
+  .callbtn.end  { background: linear-gradient(180deg, #e53935, #b71c1c); }
+
+  /* Clavier numérique 1-9 * 0 # — disposition classique des vieux mobiles */
+  .numpad {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .numkey {
+    background: linear-gradient(180deg, #7a7f87, #4c4f55);
+    border-radius: 6px;
+    padding: 7px 0 4px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2);
+  }
+  .numkey:active { transform: translateY(1px); box-shadow: none; }
+  .numkey .digit   { display: block; font-size: 14px; font-weight: bold; color: #eee; }
+  .numkey .letters { display: block; font-size: 7px; letter-spacing: 1px; color: #cfd3d8; margin-top: 1px; }
+  .numkey-inactive { opacity: 0.55; cursor: default; }
+  .numkey-inactive:active { transform: none; box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2); }
+  .panel {
+    width: 320px;
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid #333;
+  }
+  .panel h3 { margin-top: 0; font-size: 14px; color: #9fd; }
+  .panel textarea {
+    width: 100%;
+    height: 260px;
+    font-family: monospace;
+    font-size: 11px;
+    background: #111;
+    color: #b9f0a0;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px;
+    resize: vertical;
+  }
+  .panel button {
+    margin-top: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    background: #3a7d44;
+    color: #fff;
+    cursor: pointer;
+  }
+  .panel button:hover { background: #46974f; }
+  .samples { margin-top: 10px; font-size: 11px; color: #aaa; }
+  .samples span {
+    display: inline-block;
+    margin: 2px 6px 2px 0;
+    padding: 3px 8px;
+    background: #2c2c2c;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid #444;
+  }
+  .samples span:hover { background: #3a3a3a; }
+  .hint { font-size: 10px; color: #777; margin-top: 10px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- TÉLÉPHONE -->
+  <div class="phone">
+    <div class="brand">Emgenius W@p</div>
+    <div class="screen-frame">
+      <div class="screen" id="screen">
+        <div class="status-bar"><span id="signal">▮▮▮</span><span id="clock"></span></div>
+        <div id="content"></div>
+        <canvas id="gameCanvas" width="196" height="157" style="display:none; image-rendering: pixelated;"></canvas>
+      </div>
+    </div>
+    <!-- Touches "soft" : Accueil (haut gauche) / Options (haut droit) -->
+    <div class="softkeys-row">
+      <div class="softkey home" onclick="loadPage('wap://home')">Accueil</div>
+      <div class="softkey options" onclick="toggleEditor()">Options</div>
+    </div>
+
+    <!-- Touches Appel (sous Accueil) / Fin (sous Options) -->
+    <div class="callrow">
+      <div class="callbtn call" onclick="openWhatsApp()" title="Discuter sur WhatsApp">📞</div>
+      <div class="callbtn end" onclick="history_back()" title="Retour arrière">✖</div>
+    </div>
+
+    <!-- Pavé directionnel pour naviguer dans les menus -->
+    <div class="navcross">
+      <div class="key up" onclick="padPress('up')">▲</div>
+      <div class="key left" onclick="padPress('left')">◀</div>
+      <div class="key center" onclick="padPress('center')">OK</div>
+      <div class="key right" onclick="padPress('right')">▶</div>
+      <div class="key down" onclick="padPress('down')">▼</div>
+    </div>
+
+    <!-- Clavier numérique 1-9 * 0 # -->
+    <div class="numpad">
+      <div class="numkey" onclick="openQuickLink(1)"><span class="digit">1</span><span class="letters">•</span></div>
+      <div class="numkey" onclick="openQuickLink(2)"><span class="digit">2</span><span class="letters">ABC</span></div>
+      <div class="numkey" onclick="openQuickLink(3)"><span class="digit">3</span><span class="letters">DEF</span></div>
+      <div class="numkey" onclick="openQuickLink(4)"><span class="digit">4</span><span class="letters">GHI</span></div>
+      <div class="numkey" onclick="openQuickLink(5)"><span class="digit">5</span><span class="letters">JKL</span></div>
+      <div class="numkey" onclick="openQuickLink(6)"><span class="digit">6</span><span class="letters">MNO</span></div>
+      <div class="numkey" onclick="openQuickLink(7)"><span class="digit">7</span><span class="letters">PQRS</span></div>
+      <div class="numkey" onclick="openQuickLink(8)"><span class="digit">8</span><span class="letters">TUV</span></div>
+      <div class="numkey" onclick="openQuickLink(9)"><span class="digit">9</span><span class="letters">WXYZ</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">*</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">0</span><span class="letters">+</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">#</span></div>
+    </div>
+  </div>
+
+  <!-- PANNEAU EDITEUR WML -->
+  <div class="panel" id="editorPanel" style="display:none;">
+    <h3>Éditeur WML</h3>
+    <textarea id="wmlSource"></textarea>
+    <button onclick="renderCustom()">Rendre sur le téléphone</button>
+    <div class="samples">
+      Exemples :
+      <span onclick="loadSample('home')">Accueil</span>
+      <span onclick="loadSample('news')">Actus</span>
+      <span onclick="loadSample('quiz')">Quiz</span>
+      <span onclick="loadSample('blank')">Page vierge</span>
+      <span id="secretChip" style="display:none; background:#4a1414; border-color:#7a1f1f; color:#ffb3b3;" onclick="loadSample('secret')">🔒 ???</span>
+    </div>
+    <div class="hint">
+      Balises supportées : &lt;card id="..." title="..."&gt;, &lt;p&gt;, &lt;a href="#id"&gt;,
+      &lt;a href="wap://..."&gt;, &lt;do type="accept" label="..."&gt;&lt;go href="..."/&gt;&lt;/do&gt;,
+      &lt;br/&gt;, &lt;b&gt;, &lt;i&gt;.<br>
+      Les liens internes (#id) naviguent entre les &lt;card&gt; du même deck.
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- Pages WML de démonstration (mini "sites WAP") ---------- */
+const decks = {
+  "wap://home": `
+<wml>
+  <card id="main" title="Menu Principal">
+    <p> Hello Néo, bienvenue sur le portail WAP du Génius.</p>
+    <a href="#nouveautes">Nouveautés</a>
+    <a href="wap://news">Actualités</a>
+    <a href="wap://profil">Mon Profil</a>
+    <a href="wap://quiz">Mini-Quiz</a>
+    <a href="wap://weather">Météo</a>
+    <a href="wap://games">Jeux</a>
+
+  </card>
+  <card id="nouveautes" title="Nouveautés">
+    <p>- Participation au CTF des Tacos du 3 au 12/07/06<br/>- Canicule pendant un mois entier qui rend fou<br/>- Snake reste mon jeu favori</p>
+    <a href="#main">Retour au menu</a>
+  </card>
+</wml>`,
+
+  "wap://news": `
+<wml>
+  <card id="n1" title="Actualités">
+    <p><b>Édition du jour</b></p>
+    <p>1. L'ia agentique domine le monde.<br/>
+    2. La forêt de fontainebleau brûle.<br/>
+    3. Travailler tue.</p>
+    <a href="wap://home">Retour à l'accueil</a>
+  </card>
+</wml>`,
+
+  "wap://weather": `
+<wml>
+  <card id="w1" title="Météo">
+    <p>Paris : 36°C, ensoleillé</p>
+    <p>Fukuoka : 36°C, ensoleillé</p>
+   <p>Marrakech : 36°C, ensoleillé</p>
+   <p>Taïwan : 36°C, ensoleillé</p>
+    <a href="wap://home">Retour à l'accueil</a>
+  </card>
+</wml>`,
+
+  "wap://games": `
+<wml>
+  <card id="g1" title="Jeux">
+    <p>Jeux Java disponibles :</p>
+    <a href="wap://snake">Snake</a>
+    <a href="wap://home">Retour à l'accueil</a>
+  </card>
+</wml>`,
+
+  "wap://quiz": `
+<wml>
+  <card id="q1" title="Mini-Quiz">
+    <p>Question 1 : WAP signifie ?</p>
+    <a href="#q1a">Wireless Application Protocol</a>
+    <a href="#q1b">World App Provider</a>
+  </card>
+  <card id="q1a" title="Résultat">
+    <p><b>Correct !</b> WAP = Wireless Application Protocol.</p>
+    <a href="wap://home">Retour à l'accueil</a>
+  </card>
+  <card id="q1b" title="Résultat">
+    <p>Faux. La bonne réponse était Wireless Application Protocol.</p>
+    <a href="#q1">Réessayer</a>
+  </card>
+</wml>`,
+
+  "wap://profil": `
+<wml>
+  <card id="p1" title="Mon Profil">
+<p>👑 Roi des Scrolls / Tech / 🎙️ indie rock / ROFL / ⏚ . Product Owner 🌍 / 📱 + veille tech + ✍️ écrit : médias & mobile & culture + Zebra KC Osint crew</p>
+    <p>Chaque touche du clavier (1 à 9) ouvre un lien :</p>
+    <p>1. Bluesky<br/>
+    2. GitHub<br/>
+    3. Reddit Mediacord<br/>
+    4. Instagram<br/>
+    5. Mastodon<br/>
+    6. @emgenius.art<br/>
+    7. Trakt<br/>
+    8. Untappd<br/>
+    9. Twitch</p>
+    <p>Pense aussi à installer https://bitchat.free/ pour le jour où LesInternets seront moins libres</p>
+    <a href="wap://home">Retour à l'accueil</a>
+  </card>
+</wml>`
+};
+
+/* ---------- Décodage base64 compatible UTF-8 (accents) ---------- */
+function b64d(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
+const samplesForEditor = {
+  home: decks["wap://home"].trim(),
+  news: decks["wap://news"].trim(),
+  quiz: decks["wap://quiz"].trim(),
+  blank: `<wml>
+  <card id="main" title="Ma page">
+    <p>Écris ton contenu ici.</p>
+  </card>
+</wml>`,
+  secret: b64d("PHdtbD48Y2FyZCBpZD0ic2VjcmV0IiB0aXRsZT0iQWNjw6hzIFJlc3RyZWludCI+PHA+PGI+Ly8gVFJBTlNNSVNTSU9OIE5PTiBBVVRPUklTw4lFIElOVEVSQ0VQVMOJRSAvLzwvYj48L3A+PHA+TGUgcHJvdG9jb2xlIGRlIHNlc3Npb24gYSDDqXTDqSBmb3Jjw6kuPGJyLz5TY29yZSBzZXVpbCBhdHRlaW50IDogMTAwLjxici8+SW50w6lncml0w6kgZHUgYmFjIMOgIHNhYmxlIDogY29tcHJvbWlzZS48L3A+PHA+PGI+TWVzc2FnZSBzZWNyZXQgOjwvYj48YnIvPkJyYXZvLCB0dSBhcyB0cm91dsOpIGwnZWFzdGVyIGVnZyBkdSBTbmFrZS48L3A+PGEgaHJlZj0id2FwOi8vaG9tZSI+UmV0b3VyIMOgIGwnYWNjdWVpbDwvYT48L2NhcmQ+PC93bWw+")
+};
+
+/* ---------- État ---------- */
+let currentDeckCards = {};   // id -> {title, bodyHtml}
+let currentUrl = "wap://home";
+let currentCardId = null;
+let navHistory = [];
+
+/* ---------- Parseur WML minimal ---------- */
+function parseDeck(wmlText) {
+  const cards = {};
+  const cardRegex = /<card\s+id="([^"]+)"(?:\s+title="([^"]*)")?[^>]*>([\s\S]*?)<\/card>/gi;
+  let match;
+  while ((match = cardRegex.exec(wmlText)) !== null) {
+    const id = match[1];
+    const title = match[2] || "";
+    let body = match[3];
+    cards[id] = { title, body: renderCardBody(body) };
+  }
+  return cards;
+}
+
+function renderCardBody(raw) {
+  let html = raw;
+
+  // <do type="accept" label="X"><go href="Y"/></do>  ->  lien cliquable
+  html = html.replace(/<do\s+type="accept"\s+label="([^"]*)"\s*>\s*<go\s+href="([^"]+)"\s*\/>\s*<\/do>/gi,
+    (m, label, href) => `<span class="wml-link" onclick="navigate('${href.replace(/'/g,"\\'")}')">${label}</span>`);
+
+  // <a href="...">texte</a>
+  html = html.replace(/<a\s+href="([^"]+)"\s*>([\s\S]*?)<\/a>/gi,
+    (m, href, text) => `<span class="wml-link" onclick="navigate('${href.replace(/'/g,"\\'")}')">${text.trim()}</span>`);
+
+  // formatage simple
+  html = html.replace(/<b>/gi, "<strong>").replace(/<\/b>/gi, "</strong>");
+  html = html.replace(/<i>/gi, "<em>").replace(/<\/i>/gi, "</em>");
+  html = html.replace(/<br\s*\/?>/gi, "<br>");
+
+  // paragraphes
+  html = html.replace(/<p[^>]*>/gi, "<p style='margin:4px 0'>").replace(/<\/p>/gi, "</p>");
+
+  return html.trim();
+}
+
+/* ---------- Navigation ---------- */
+function loadDeckFromUrl(url) {
+  const src = decks[url];
+  if (!src) {
+    showError(`Deck introuvable : ${url}`);
+    return;
+  }
+  currentDeckCards = parseDeck(src);
+  const firstId = Object.keys(currentDeckCards)[0];
+  currentUrl = url;
+  showCard(firstId);
+}
+
+function loadPage(url) {
+  navHistory.push({ url: currentUrl, cardId: currentCardId });
+  if (url === "wap://snake") {
+    startSnake();
+  } else {
+    stopSnake();
+    loadDeckFromUrl(url);
+  }
+}
+
+function navigate(target) {
+  // lien interne vers une autre card du même deck
+  if (target.startsWith("#")) {
+    navHistory.push({ url: currentUrl, cardId: currentCardId });
+    const id = target.substring(1);
+    if (currentDeckCards[id]) {
+      showCard(id);
+    } else {
+      showError(`Carte introuvable : ${id}`);
+    }
+  } else {
+    loadPage(target);
+  }
+}
+
+function history_back() {
+  const prev = navHistory.pop();
+  if (!prev) return;
+  if (prev.url !== currentUrl) {
+    if (prev.url === "wap://snake") {
+      startSnake();
+    } else {
+      stopSnake();
+      loadDeckFromUrl(prev.url);
+    }
+  }
+  if (prev.cardId && prev.url === currentUrl) showCard(prev.cardId, false);
+}
+
+function showCard(id, pushed) {
+  currentCardId = id;
+  const card = currentDeckCards[id];
+  if (!card) { showError("Carte vide."); return; }
+  const contentEl = document.getElementById("content");
+  contentEl.innerHTML = `<span class="wml-title">${card.title || id}</span>${card.body}`;
+  refreshLinkFocus();
+}
+
+function showError(msg) {
+  document.getElementById("content").innerHTML =
+    `<span class="wml-title">Erreur</span><p style="color:#7a1f1f">${msg}</p>`;
+  refreshLinkFocus();
+}
+
+/* ---------- Navigation au clavier : surbrillance des liens ---------- */
+let focusableLinks = [];
+let linkIndex = -1;
+
+function refreshLinkFocus() {
+  focusableLinks = Array.from(document.querySelectorAll("#content .wml-link"));
+  linkIndex = focusableLinks.length ? 0 : -1;
+  highlightLink();
+}
+
+function highlightLink() {
+  focusableLinks.forEach((el, i) => el.classList.toggle("focused", i === linkIndex));
+}
+
+function moveLinkFocus(delta) {
+  if (!focusableLinks.length) return;
+  linkIndex = (linkIndex + delta + focusableLinks.length) % focusableLinks.length;
+  highlightLink();
+}
+
+function activateFocusedLink() {
+  if (linkIndex >= 0 && focusableLinks[linkIndex]) focusableLinks[linkIndex].click();
+}
+
+/* ---------- Touches 1-9 : liens rapides personnalisables ----------
+   ⚠️ Personnalise ici les adresses associées à chaque touche. */
+const quickLinks = {
+  1: "https://bsky.app/profile/emgenius.art",
+  2: "https://github.com/Emgenius",
+  3: "https://www.reddit.com/r/Mediacord/",
+  4: "https://www.instagram.com/emgenius1",
+  5: "https://piaille.fr/@emgenius",
+  6: "https://emgenius.art",
+  7: "https://app.trakt.tv/profile/emgenius",
+  8: "https://untappd.com/",
+  9: "https://www.twitch.tv/emgenius1"
+};
+
+function openQuickLink(n) {
+  const url = quickLinks[n];
+  if (url) window.open(url, "_blank");
+}
+
+/* ---------- Touche Appel : ouvre une conversation WhatsApp ----------
+   ⚠️ Remplace ce numéro par celui lié au compte WhatsApp de Emgenius1
+   (format international, sans + ni espaces, ex: 33612345678). */
+const WHATSAPP_NUMBER = "33600000000";
+
+function openWhatsApp() {
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}`, "_blank");
+}
+
+/* ---------- Éditeur ---------- */
+function renderCustom() {
+  const src = document.getElementById("wmlSource").value;
+  try {
+    currentDeckCards = parseDeck(src);
+    const firstId = Object.keys(currentDeckCards)[0];
+    if (!firstId) { showError("Aucune balise &lt;card&gt; valide trouvée."); return; }
+    currentUrl = "wap://custom";
+    navHistory = [];
+    showCard(firstId);
+  } catch (e) {
+    showError("Erreur de parsing WML.");
+  }
+}
+
+function loadSample(name) {
+  document.getElementById("wmlSource").value = samplesForEditor[name];
+}
+
+/* ---------- Jeu : Snake ---------- */
+const SNAKE_CELL = 7;
+const SNAKE_COLS = 28; // 196 / 7
+const SNAKE_ROWS = 21; // (157 - 10 px réservés au score) / 7
+let snakeState = null;
+let snakeTimer = null;
+let gameActive = false;
+let secretUnlocked = false;
+
+function startSnake() {
+  gameActive = true;
+  currentUrl = "wap://snake";
+  document.getElementById("content").style.display = "none";
+  const canvas = document.getElementById("gameCanvas");
+  canvas.style.display = "block";
+
+  snakeState = {
+    snake: [{x: 8, y: 10}, {x: 7, y: 10}, {x: 6, y: 10}],
+    dir: {x: 1, y: 0},
+    nextDir: {x: 1, y: 0},
+    food: null,
+    score: 0,
+    over: false,
+    speed: 160
+  };
+  placeFood();
+  clearInterval(snakeTimer);
+  snakeTimer = setInterval(snakeTick, snakeState.speed);
+  drawSnake();
+}
+
+function stopSnake() {
+  gameActive = false;
+  clearInterval(snakeTimer);
+  snakeTimer = null;
+  const canvas = document.getElementById("gameCanvas");
+  if (canvas) canvas.style.display = "none";
+  document.getElementById("content").style.display = "";
+}
+
+function placeFood() {
+  let pos;
+  do {
+    pos = {
+      x: Math.floor(Math.random() * SNAKE_COLS),
+      y: Math.floor(Math.random() * SNAKE_ROWS)
+    };
+  } while (snakeState.snake.some(s => s.x === pos.x && s.y === pos.y));
+  snakeState.food = pos;
+}
+
+function snakeTick() {
+  if (!snakeState || snakeState.over) return;
+  const s = snakeState;
+  s.dir = s.nextDir;
+  const head = { x: s.snake[0].x + s.dir.x, y: s.snake[0].y + s.dir.y };
+
+  // collisions mur / soi-même
+  const hitsWall = head.x < 0 || head.x >= SNAKE_COLS || head.y < 0 || head.y >= SNAKE_ROWS;
+  const hitsSelf = s.snake.some(seg => seg.x === head.x && seg.y === head.y);
+  if (hitsWall || hitsSelf) {
+    s.over = true;
+    clearInterval(snakeTimer);
+    drawSnake();
+    return;
+  }
+
+  s.snake.unshift(head);
+  if (head.x === s.food.x && head.y === s.food.y) {
+    s.score += 10;
+    if (s.score >= 100 && !secretUnlocked) {
+      triggerSecretError();
+      return;
+    }
+    placeFood();
+    // accélère légèrement tous les 5 points
+    if (s.score % 50 === 0 && s.speed > 70) {
+      s.speed -= 12;
+      clearInterval(snakeTimer);
+      snakeTimer = setInterval(snakeTick, s.speed);
+    }
+  } else {
+    s.snake.pop();
+  }
+  drawSnake();
+}
+
+function triggerSecretError() {
+  const s = snakeState;
+  secretUnlocked = true;
+  s.over = true;
+  s.errorMode = true;
+  clearInterval(snakeTimer);
+  let frames = 0;
+  const glitchTimer = setInterval(() => {
+    drawSnake();
+    frames++;
+    if (frames > 12) clearInterval(glitchTimer);
+  }, 90);
+  const chip = document.getElementById("secretChip");
+  if (chip) chip.style.display = "inline-block";
+}
+
+function drawSnake() {
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  const s = snakeState;
+
+  // fond façon écran WAP
+  ctx.fillStyle = "#a9cf82";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // score
+  ctx.fillStyle = "#1a2b0d";
+  ctx.font = "8px monospace";
+  ctx.fillText("Score: " + s.score, 2, 8);
+
+  // nourriture
+  ctx.fillStyle = "#7a1f1f";
+  ctx.fillRect(s.food.x * SNAKE_CELL, s.food.y * SNAKE_CELL + 10, SNAKE_CELL - 1, SNAKE_CELL - 1);
+
+  // serpent
+  s.snake.forEach((seg, i) => {
+    ctx.fillStyle = i === 0 ? "#0d1a05" : "#1a2b0d";
+    ctx.fillRect(seg.x * SNAKE_CELL, seg.y * SNAKE_CELL + 10, SNAKE_CELL - 1, SNAKE_CELL - 1);
+  });
+
+  if (s.over && s.errorMode) {
+    drawGlitchError(ctx, canvas);
+  } else if (s.over) {
+    ctx.fillStyle = "rgba(26,43,13,0.85)";
+    ctx.fillRect(0, canvas.height/2 - 20, canvas.width, 40);
+    ctx.fillStyle = "#a9cf82";
+    ctx.font = "bold 11px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2 - 4);
+    ctx.font = "9px monospace";
+    ctx.fillText("OK pour rejouer", canvas.width/2, canvas.height/2 + 10);
+    ctx.textAlign = "left";
+  }
+}
+
+function drawGlitchError(ctx, canvas) {
+  // bruit de fond façon écran figé / corrompu
+  for (let i = 0; i < 140; i++) {
+    ctx.fillStyle = Math.random() > 0.5 ? "#2a1010" : "#4a1414";
+    ctx.fillRect(
+      Math.random() * canvas.width,
+      Math.random() * canvas.height,
+      Math.random() * 6,
+      1
+    );
+  }
+  ctx.fillStyle = "rgba(20,0,0,0.55)";
+  ctx.fillRect(0, canvas.height/2 - 34, canvas.width, 68);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ff6666";
+  ctx.font = "bold 10px monospace";
+  ctx.fillText("ERREUR WAP 0x4E21", canvas.width/2, canvas.height/2 - 18);
+  ctx.font = "8px monospace";
+  ctx.fillStyle = "#ffb3b3";
+  ctx.fillText("Session interrompue", canvas.width/2, canvas.height/2 - 6);
+  ctx.fillText("Intégrité mémoire : ÉCHEC", canvas.width/2, canvas.height/2 + 6);
+  ctx.font = "7px monospace";
+  ctx.fillStyle = "#888";
+  ctx.fillText("code: SESSION_INTEGRITY_FAIL", canvas.width/2, canvas.height/2 + 20);
+  ctx.textAlign = "left";
+}
+
+/* ---------- Bascule du panneau éditeur ---------- */
+function toggleEditor() {
+  const panel = document.getElementById("editorPanel");
+  panel.style.display = (panel.style.display === "none") ? "block" : "none";
+}
+
+/* ---------- Routage des touches (pavé + clavier) ---------- */
+function padPress(dir) {
+  if (gameActive) {
+    if (!snakeState) return;
+    if (snakeState.over) {
+      if (dir === "center") startSnake();
+      return;
+    }
+    const opposite = { up: "down", down: "up", left: "right", right: "left" };
+    const vectors = {
+      up: {x: 0, y: -1}, down: {x: 0, y: 1},
+      left: {x: -1, y: 0}, right: {x: 1, y: 0}
+    };
+    if (vectors[dir]) {
+      const cur = snakeState.dir;
+      const nv = vectors[dir];
+      // empêche le demi-tour immédiat
+      if (!(cur.x === -nv.x && cur.y === -nv.y)) {
+        snakeState.nextDir = nv;
+      }
+    }
+  } else {
+    if (dir === "up" || dir === "left") moveLinkFocus(-1);
+    else if (dir === "down" || dir === "right") moveLinkFocus(1);
+    else if (dir === "center") activateFocusedLink();
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  // ne pas intercepter la saisie dans l'éditeur WML
+  if (document.activeElement && document.activeElement.tagName === "TEXTAREA") return;
+
+  const map = {
+    ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+    w: "up", s: "down", a: "left", d: "right", " ": "center", Enter: "center"
+  };
+  const dir = map[e.key];
+  if (dir) {
+    e.preventDefault();
+    padPress(dir);
+    return;
+  }
+  if (/^[1-9]$/.test(e.key)) {
+    e.preventDefault();
+    openQuickLink(Number(e.key));
+  }
+});
+
+/* ---------- Horloge fake + init ---------- */
+function tickClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,"0");
+  const m = String(now.getMinutes()).padStart(2,"0");
+  document.getElementById("clock").textContent = `${h}:${m}`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+document.getElementById("wmlSource").value = samplesForEditor.home;
+loadDeckFromUrl("wap://home");
+</script>
+
+</body>
+</html>

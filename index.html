@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Emgenius W@p</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Courier New", monospace;
+    background: #2b2b2b;
+    background-image: radial-gradient(circle at 30% 20%, #3a3a3a, #1a1a1a);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 10px;
+    min-height: 100vh;
+    margin: 0;
+    color: #eee;
+  }
+  .wrap {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .phone {
+    width: 260px;
+    background: linear-gradient(180deg, #5b5f66, #3a3d42);
+    border-radius: 30px;
+    padding: 18px 16px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 0 2px #222;
+    border: 2px solid #1c1d1f;
+  }
+  .brand {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #cfd3d8;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 0 #000;
+  }
+  .screen-frame {
+    background: #111;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: inset 0 0 6px #000;
+  }
+  .screen {
+    background: #9fc27a;
+    background: linear-gradient(180deg, #a9cf82, #94bb6f);
+    height: 240px;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #1a2b0d;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.35);
+  }
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    border-bottom: 1px solid #1a2b0d;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    opacity: 0.8;
+  }
+  .wml-title {
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .wml-link {
+    display: block;
+    color: #0b3d91;
+    cursor: pointer;
+    margin: 4px 0;
+  }
+  .wml-link:before { content: "> "; }
+  .wml-link:hover { text-decoration: underline; }
+  .wml-link.focused {
+    background: #1a2b0d;
+    color: #d6f5a8;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+  /* Touches "soft" (Accueil / Options) — position des vieilles touches
+     contextuelles bleues sous l'écran d'un mobile type Nokia 7110 */
+  .softkeys-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .softkey {
+    flex: 1;
+    text-align: center;
+    background: linear-gradient(180deg, #3a6fa5, #26507e);
+    border-radius: 8px 8px 4px 4px;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: #dfe9f5;
+    padding: 7px 4px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 #17324f, inset 0 1px 1px rgba(255,255,255,0.25);
+  }
+  .softkey:active { transform: translateY(1px); box-shadow: none; }
+  .softkey.home::before    { content: "⌂ "; }
+  .softkey.options::before { content: "⚙ "; }
+
+  /* Pavé directionnel (navigation dans les menus WML) */
+  .navcross {
+    margin: 10px auto 0;
+    display: grid;
+    grid-template-columns: 34px 34px 34px;
+    grid-template-rows: 26px 26px 26px;
+    gap: 5px;
+    justify-content: center;
+  }
+  .key {
+    background: linear-gradient(180deg, #7a7f87, #4c4f55);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #eee;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2);
+    user-select: none;
+  }
+  .key:active { transform: translateY(1px); box-shadow: none; }
+  .navcross .up     { grid-column: 2; grid-row: 1; }
+  .navcross .left   { grid-column: 1; grid-row: 2; }
+  .navcross .center { grid-column: 2; grid-row: 2; font-size: 10px; }
+  .navcross .right  { grid-column: 3; grid-row: 2; }
+  .navcross .down   { grid-column: 2; grid-row: 3; }
+
+  /* Touches Appel (verte, sous Accueil) / Fin (rouge, sous Options) */
+  .callrow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 6px;
+  }
+  .callbtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+  }
+  .callbtn:active { transform: translateY(1px); box-shadow: none; }
+  .callbtn.call { background: linear-gradient(180deg, #4caf50, #2e7d32); }
+  .callbtn.end  { background: linear-gradient(180deg, #e53935, #b71c1c); }
+
+  /* Clavier numérique 1-9 * 0 # — disposition classique des vieux mobiles */
+  .numpad {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .numkey {
+    background: linear-gradient(180deg, #7a7f87, #4c4f55);
+    border-radius: 6px;
+    padding: 7px 0 4px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2);
+  }
+  .numkey:active { transform: translateY(1px); box-shadow: none; }
+  .numkey .digit   { display: block; font-size: 14px; font-weight: bold; color: #eee; }
+  .numkey .letters { display: block; font-size: 7px; letter-spacing: 1px; color: #cfd3d8; margin-top: 1px; }
+  .numkey-inactive { opacity: 0.55; cursor: default; }
+  .numkey-inactive:active { transform: none; box-shadow: 0 2px 0 #2a2b2d, inset 0 1px 1px rgba(255,255,255,0.2); }
+  .panel {
+    width: 320px;
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid #333;
+  }
+  .panel h3 { margin-top: 0; font-size: 14px; color: #9fd; }
+  .panel textarea {
+    width: 100%;
+    height: 260px;
+    font-family: monospace;
+    font-size: 11px;
+    background: #111;
+    color: #b9f0a0;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px;
+    resize: vertical;
+  }
+  .panel button {
+    margin-top: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    background: #3a7d44;
+    color: #fff;
+    cursor: pointer;
+  }
+  .panel button:hover { background: #46974f; }
+  .samples { margin-top: 10px; font-size: 11px; color: #aaa; }
+  .samples span {
+    display: inline-block;
+    margin: 2px 6px 2px 0;
+    padding: 3px 8px;
+    background: #2c2c2c;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid #444;
+  }
+  .samples span:hover { background: #3a3a3a; }
+  .hint { font-size: 10px; color: #777; margin-top: 10px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- TÉLÉPHONE -->
+  <div class="phone">
+    <div class="brand">Emgenius W@p</div>
+    <div class="screen-frame">
+      <div class="screen" id="screen">
+        <div class="status-bar"><span id="signal">▮▮▮</span><span id="clock"></span></div>
+        <div id="content"></div>
+        <canvas id="gameCanvas" width="196" height="157" style="display:none; image-rendering: pixelated;"></canvas>
+      </div>
+    </div>
+    <!-- Touches "soft" : Accueil (haut gauche) / Options (haut droit) -->
+    <div class="softkeys-row">
+      <div class="softkey home" onclick="loadPage('wap://home')">Accueil</div>
+      <div class="softkey options" onclick="toggleEditor()">Options</div>
+    </div>
+
+    <!-- Touches Appel (sous Accueil) / Fin (sous Options) -->
+    <div class="callrow">
+      <div class="callbtn call" onclick="openWhatsApp()" title="Discuter sur WhatsApp">📞</div>
+      <div class="callbtn end" onclick="history_back()" title="Retour arrière">✖</div>
+    </div>
+
+    <!-- Pavé directionnel pour naviguer dans les menus -->
+    <div class="navcross">
+      <div class="key up" onclick="padPress('up')">▲</div>
+      <div class="key left" onclick="padPress('left')">◀</div>
+      <div class="key center" onclick="padPress('center')">OK</div>
+      <div class="key right" onclick="padPress('right')">▶</div>
+      <div class="key down" onclick="padPress('down')">▼</div>
+    </div>
+
+    <!-- Clavier numérique 1-9 * 0 # -->
+    <div class="numpad">
+      <div class="numkey" onclick="openQuickLink(1)"><span class="digit">1</span><span class="letters">•</span></div>
+      <div class="numkey" onclick="openQuickLink(2)"><span class="digit">2</span><span class="letters">ABC</span></div>
+      <div class="numkey" onclick="openQuickLink(3)"><span class="digit">3</span><span class="letters">DEF</span></div>
+      <div class="numkey" onclick="openQuickLink(4)"><span class="digit">4</span><span class="letters">GHI</span></div>
+      <div class="numkey" onclick="openQuickLink(5)"><span class="digit">5</span><span class="letters">JKL</span></div>
+      <div class="numkey" onclick="openQuickLink(6)"><span class="digit">6</span><span class="letters">MNO</span></div>
+      <div class="numkey" onclick="openQuickLink(7)"><span class="digit">7</span><span class="letters">PQRS</span></div>
+      <div class="numkey" onclick="openQuickLink(8)"><span class="digit">8</span><span class="letters">TUV</span></div>
+      <div class="numkey" onclick="openQuickLink(9)"><span class="digit">9</span><span class="letters">WXYZ</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">*</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">0</span><span class="letters">+</span></div>
+      <div class="numkey numkey-inactive"><span class="digit">#</span></div>
+    </div>
+  </div>
+
+  <!-- PANNEAU EDITEUR WML -->
+  <div class="panel" id="editorPanel" style="display:none;">
+    <h3>Éditeur WML</h3>
+    <textarea id="wmlSource"></textarea>
+    <button onclick="renderCustom()">Rendre sur le téléphone</button>
+    <div class="samples">
+      Exemples :
+      <span onclick="loadSample('home')">Accueil</span>
+      <span onclick="loadSample('news')">Actus</span>
+      <span onclick="loadSample('quiz')">Quiz</span>
+      <span onclick="loadSample('blank')">Page vierge</span>
+      <span id="secretChip" style="display:none; background:#4a1414; border-color:#7a1f1f; color:#ffb3b3;" onclick="loadSample('secret')">🔒 ???</span>
+    </div>
+    <div class="hint">
+      Balises supportées : &lt;card id="..." title="..."&gt;, &lt;p&gt;, &lt;a href="#id"&gt;,
+      &lt;a href="wap://..."&gt;, &lt;do type="accept" label="..."&gt;&lt;go href="..."/&gt;&lt;/do&gt;,
+      &lt;br/&gt;, &lt;b&gt;, &lt;i&gt;.<br>
+      Les liens internes (#id) naviguent entre les &lt;card&gt; du même deck.
+    </div>
+  </div>
+
+</div>
+
+<script>const decks={"wap://home":'\n<wml>\n  <card id="main" title="Menu Principal">\n    <p> Hello Néo, bienvenue sur le portail WAP du Génius.</p>\n    <a href="#nouveautes">Nouveautés</a>\n    <a href="wap://news">Actualités</a>\n    <a href="wap://profil">Mon Profil</a>\n    <a href="wap://quiz">Mini-Quiz</a>\n    <a href="wap://weather">Météo</a>\n    <a href="wap://games">Jeux</a>\n\n  </card>\n  <card id="nouveautes" title="Nouveautés">\n    <p>- Participation au CTF des Tacos du 3 au 12/07/06<br/>- Canicule pendant un mois entier qui rend fou<br/>- Snake reste mon jeu favori</p>\n    <a href="#main">Retour au menu</a>\n  </card>\n</wml>',"wap://news":'\n<wml>\n  <card id="n1" title="Actualités">\n    <p><b>Édition du jour</b></p>\n    <p>1. L\'ia agentique domine le monde.<br/>\n    2. La forêt de fontainebleau brûle.<br/>\n    3. Travailler tue.</p>\n    <a href="wap://home">Retour à l\'accueil</a>\n  </card>\n</wml>',"wap://weather":'\n<wml>\n  <card id="w1" title="Météo">\n    <p>Paris : 36°C, ensoleillé</p>\n    <p>Fukuoka : 36°C, ensoleillé</p>\n   <p>Marrakech : 36°C, ensoleillé</p>\n   <p>Taïwan : 36°C, ensoleillé</p>\n    <a href="wap://home">Retour à l\'accueil</a>\n  </card>\n</wml>',"wap://games":'\n<wml>\n  <card id="g1" title="Jeux">\n    <p>Jeux Java disponibles :</p>\n    <a href="wap://snake">Snake</a>\n    <a href="wap://home">Retour à l\'accueil</a>\n  </card>\n</wml>',"wap://quiz":'\n<wml>\n  <card id="q1" title="Mini-Quiz">\n    <p>Question 1 : WAP signifie ?</p>\n    <a href="#q1a">Wireless Application Protocol</a>\n    <a href="#q1b">World App Provider</a>\n  </card>\n  <card id="q1a" title="Résultat">\n    <p><b>Correct !</b> WAP = Wireless Application Protocol.</p>\n    <a href="wap://home">Retour à l\'accueil</a>\n  </card>\n  <card id="q1b" title="Résultat">\n    <p>Faux. La bonne réponse était Wireless Application Protocol.</p>\n    <a href="#q1">Réessayer</a>\n  </card>\n</wml>',"wap://profil":'\n<wml>\n  <card id="p1" title="Mon Profil">\n<p>👑 Roi des Scrolls / Tech / 🎙️ indie rock / ROFL / ⏚ . Product Owner 🌍 / 📱 + veille tech + ✍️ écrit : médias & mobile & culture + Zebra KC Osint crew</p>\n    <p>Chaque touche du clavier (1 à 9) ouvre un lien :</p>\n    <p>1. Bluesky<br/>\n    2. GitHub<br/>\n    3. Reddit Mediacord<br/>\n    4. Instagram<br/>\n    5. Mastodon<br/>\n    6. @emgenius.art<br/>\n    7. Trakt<br/>\n    8. Untappd<br/>\n    9. Twitch</p>\n    <p>Pense aussi à installer https://bitchat.free/ pour le jour où LesInternets seront moins libres</p>\n    <a href="wap://home">Retour à l\'accueil</a>\n  </card>\n</wml>'};function b64d(e){return decodeURIComponent(escape(atob(e)))}const samplesForEditor={home:decks["wap://home"].trim(),news:decks["wap://news"].trim(),quiz:decks["wap://quiz"].trim(),blank:'<wml>\n  <card id="main" title="Ma page">\n    <p>Écris ton contenu ici.</p>\n  </card>\n</wml>',secret:b64d("PHdtbD48Y2FyZCBpZD0ic2VjcmV0IiB0aXRsZT0iQWNjw6hzIFJlc3RyZWludCI+PHA+PGI+Ly8gVFJBTlNNSVNTSU9OIE5PTiBBVVRPUklTw4lFIElOVEVSQ0VQVMOJRSAvLzwvYj48L3A+PHA+TGUgcHJvdG9jb2xlIGRlIHNlc3Npb24gYSDDqXTDqSBmb3Jjw6kuPGJyLz5TY29yZSBzZXVpbCBhdHRlaW50IDogMTAwLjxici8+SW50w6lncml0w6kgZHUgYmFjIMOgIHNhYmxlIDogY29tcHJvbWlzZS48L3A+PHA+PGI+TWVzc2FnZSBzZWNyZXQgOjwvYj48YnIvPkJyYXZvLCB0dSBhcyB0cm91dsOpIGwnZWFzdGVyIGVnZyBkdSBTbmFrZS48YnIvPlZvaWNpIG1vbiBudW3DqXJvIGRlIHTDqWzDqXBob25lIHNpIHR1IHZldXggbSdhcHBlbGVyIDogKzMzNjE5MTAzNzg4PC9wPjxhIGhyZWY9IndhcDovL2hvbWUiPlJldG91ciDDoCBsJ2FjY3VlaWw8L2E+PC9jYXJkPjwvd21sPg==")};let currentDeckCards={},currentUrl="wap://home",currentCardId=null,navHistory=[];function parseDeck(e){const n={},t=/<card\s+id="([^"]+)"(?:\s+title="([^"]*)")?[^>]*>([\s\S]*?)<\/card>/gi;let r;for(;null!==(r=t.exec(e));){const e=r[1],t=r[2]||"";let a=r[3];n[e]={title:t,body:renderCardBody(a)}}return n}function renderCardBody(e){let n=e;return n=n.replace(/<do\s+type="accept"\s+label="([^"]*)"\s*>\s*<go\s+href="([^"]+)"\s*\/>\s*<\/do>/gi,(e,n,t)=>`<span class="wml-link" onclick="navigate('${t.replace(/'/g,"\\'")}')">${n}</span>`),n=n.replace(/<a\s+href="([^"]+)"\s*>([\s\S]*?)<\/a>/gi,(e,n,t)=>`<span class="wml-link" onclick="navigate('${n.replace(/'/g,"\\'")}')">${t.trim()}</span>`),n=n.replace(/<b>/gi,"<strong>").replace(/<\/b>/gi,"</strong>"),n=n.replace(/<i>/gi,"<em>").replace(/<\/i>/gi,"</em>"),n=n.replace(/<br\s*\/?>/gi,"<br>"),n=n.replace(/<p[^>]*>/gi,"<p style='margin:4px 0'>").replace(/<\/p>/gi,"</p>"),n.trim()}function loadDeckFromUrl(e){const n=decks[e];if(!n)return void showError(`Deck introuvable : ${e}`);currentDeckCards=parseDeck(n);const t=Object.keys(currentDeckCards)[0];currentUrl=e,showCard(t)}function loadPage(e){navHistory.push({url:currentUrl,cardId:currentCardId}),"wap://snake"===e?startSnake():(stopSnake(),loadDeckFromUrl(e))}function navigate(e){if(e.startsWith("#")){navHistory.push({url:currentUrl,cardId:currentCardId});const n=e.substring(1);currentDeckCards[n]?showCard(n):showError(`Carte introuvable : ${n}`)}else loadPage(e)}function history_back(){const e=navHistory.pop();e&&(e.url!==currentUrl&&("wap://snake"===e.url?startSnake():(stopSnake(),loadDeckFromUrl(e.url))),e.cardId&&e.url===currentUrl&&showCard(e.cardId,!1))}function showCard(e,n){currentCardId=e;const t=currentDeckCards[e];if(!t)return void showError("Carte vide.");document.getElementById("content").innerHTML=`<span class="wml-title">${t.title||e}</span>${t.body}`,refreshLinkFocus()}function showError(e){document.getElementById("content").innerHTML=`<span class="wml-title">Erreur</span><p style="color:#7a1f1f">${e}</p>`,refreshLinkFocus()}let focusableLinks=[],linkIndex=-1;function refreshLinkFocus(){focusableLinks=Array.from(document.querySelectorAll("#content .wml-link")),linkIndex=focusableLinks.length?0:-1,highlightLink()}function highlightLink(){focusableLinks.forEach((e,n)=>e.classList.toggle("focused",n===linkIndex))}function moveLinkFocus(e){focusableLinks.length&&(linkIndex=(linkIndex+e+focusableLinks.length)%focusableLinks.length,highlightLink())}function activateFocusedLink(){linkIndex>=0&&focusableLinks[linkIndex]&&focusableLinks[linkIndex].click()}const quickLinks={1:"https://bsky.app/profile/emgenius.art",2:"https://github.com/Emgenius",3:"https://www.reddit.com/r/Mediacord/",4:"https://www.instagram.com/emgenius1",5:"https://piaille.fr/@emgenius",6:"https://emgenius.art",7:"https://app.trakt.tv/profile/emgenius",8:"https://untappd.com/",9:"https://www.twitch.tv/emgenius1"};function openQuickLink(e){const n=quickLinks[e];n&&window.open(n,"_blank")}const WHATSAPP_NUMBER="33600000000";function openWhatsApp(){window.open("https://wa.me/33600000000","_blank")}function renderCustom(){const e=document.getElementById("wmlSource").value;try{currentDeckCards=parseDeck(e);const n=Object.keys(currentDeckCards)[0];if(!n)return void showError("Aucune balise &lt;card&gt; valide trouvée.");currentUrl="wap://custom",navHistory=[],showCard(n)}catch(e){showError("Erreur de parsing WML.")}}function loadSample(e){document.getElementById("wmlSource").value=samplesForEditor[e]}const SNAKE_CELL=7,SNAKE_COLS=28,SNAKE_ROWS=21;let snakeState=null,snakeTimer=null,gameActive=!1,secretUnlocked=!1;function startSnake(){gameActive=!0,currentUrl="wap://snake",document.getElementById("content").style.display="none";document.getElementById("gameCanvas").style.display="block",snakeState={snake:[{x:8,y:10},{x:7,y:10},{x:6,y:10}],dir:{x:1,y:0},nextDir:{x:1,y:0},food:null,score:0,over:!1,speed:160},placeFood(),clearInterval(snakeTimer),snakeTimer=setInterval(snakeTick,snakeState.speed),drawSnake()}function stopSnake(){gameActive=!1,clearInterval(snakeTimer),snakeTimer=null;const e=document.getElementById("gameCanvas");e&&(e.style.display="none"),document.getElementById("content").style.display=""}function placeFood(){let e;do{e={x:Math.floor(28*Math.random()),y:Math.floor(21*Math.random())}}while(snakeState.snake.some(n=>n.x===e.x&&n.y===e.y));snakeState.food=e}function snakeTick(){if(!snakeState||snakeState.over)return;const e=snakeState;e.dir=e.nextDir;const n={x:e.snake[0].x+e.dir.x,y:e.snake[0].y+e.dir.y},t=n.x<0||n.x>=28||n.y<0||n.y>=21,r=e.snake.some(e=>e.x===n.x&&e.y===n.y);if(t||r)return e.over=!0,clearInterval(snakeTimer),void drawSnake();if(e.snake.unshift(n),n.x===e.food.x&&n.y===e.food.y){if(e.score+=10,e.score>=100&&!secretUnlocked)return void triggerSecretError();placeFood(),e.score%50==0&&e.speed>70&&(e.speed-=12,clearInterval(snakeTimer),snakeTimer=setInterval(snakeTick,e.speed))}else e.snake.pop();drawSnake()}function triggerSecretError(){const e=snakeState;secretUnlocked=!0,e.over=!0,e.errorMode=!0,clearInterval(snakeTimer);let n=0;const t=setInterval(()=>{drawSnake(),n++,n>12&&clearInterval(t)},90),r=document.getElementById("secretChip");r&&(r.style.display="inline-block")}function drawSnake(){const e=document.getElementById("gameCanvas"),n=e.getContext("2d"),t=snakeState;n.fillStyle="#a9cf82",n.fillRect(0,0,e.width,e.height),n.fillStyle="#1a2b0d",n.font="8px monospace",n.fillText("Score: "+t.score,2,8),n.fillStyle="#7a1f1f",n.fillRect(7*t.food.x,7*t.food.y+10,6,6),t.snake.forEach((e,t)=>{n.fillStyle=0===t?"#0d1a05":"#1a2b0d",n.fillRect(7*e.x,7*e.y+10,6,6)}),t.over&&t.errorMode?drawGlitchError(n,e):t.over&&(n.fillStyle="rgba(26,43,13,0.85)",n.fillRect(0,e.height/2-20,e.width,40),n.fillStyle="#a9cf82",n.font="bold 11px monospace",n.textAlign="center",n.fillText("GAME OVER",e.width/2,e.height/2-4),n.font="9px monospace",n.fillText("OK pour rejouer",e.width/2,e.height/2+10),n.textAlign="left")}function drawGlitchError(e,n){for(let t=0;t<140;t++)e.fillStyle=Math.random()>.5?"#2a1010":"#4a1414",e.fillRect(Math.random()*n.width,Math.random()*n.height,6*Math.random(),1);e.fillStyle="rgba(20,0,0,0.55)",e.fillRect(0,n.height/2-34,n.width,68),e.textAlign="center",e.fillStyle="#ff6666",e.font="bold 10px monospace",e.fillText("ERREUR WAP 0x4E21",n.width/2,n.height/2-18),e.font="8px monospace",e.fillStyle="#ffb3b3",e.fillText("Session interrompue",n.width/2,n.height/2-6),e.fillText("Intégrité mémoire : ÉCHEC",n.width/2,n.height/2+6),e.font="7px monospace",e.fillStyle="#888",e.fillText("code: SESSION_INTEGRITY_FAIL",n.width/2,n.height/2+20),e.textAlign="left"}function toggleEditor(){const e=document.getElementById("editorPanel");e.style.display="none"===e.style.display?"block":"none"}function padPress(e){if(gameActive){if(!snakeState)return;if(snakeState.over)return void("center"===e&&startSnake());const n={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};if(n[e]){const t=snakeState.dir,r=n[e];t.x===-r.x&&t.y===-r.y||(snakeState.nextDir=r)}}else"up"===e||"left"===e?moveLinkFocus(-1):"down"===e||"right"===e?moveLinkFocus(1):"center"===e&&activateFocusedLink()}function tickClock(){const e=new Date,n=String(e.getHours()).padStart(2,"0"),t=String(e.getMinutes()).padStart(2,"0");document.getElementById("clock").textContent=`${n}:${t}`}document.addEventListener("keydown",e=>{if(document.activeElement&&"TEXTAREA"===document.activeElement.tagName)return;const n={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",s:"down",a:"left",d:"right"," ":"center",Enter:"center"}[e.key];if(n)return e.preventDefault(),void padPress(n);/^[1-9]$/.test(e.key)&&(e.preventDefault(),openQuickLink(Number(e.key)))}),setInterval(tickClock,1e3),tickClock(),document.getElementById("wmlSource").value=samplesForEditor.home,loadDeckFromUrl("wap://home");</script>
+
+</body>
+</html>
