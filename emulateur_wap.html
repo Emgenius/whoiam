@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emgenius W@p</title>
 <style>
   * { box-sizing: border-box; }
@@ -228,6 +229,32 @@
   }
   .samples span:hover { background: #3a3a3a; }
   .hint { font-size: 10px; color: #777; margin-top: 10px; line-height: 1.4; }
+
+  /* ---------- Breakpoint mobile ----------
+     Cible les écrans dont la résolution physique tourne autour
+     de 1080x2400 px (ex: la plupart des smartphones Android récents).
+     Ces résolutions physiques correspondent à une largeur logique
+     (CSS px) d'environ 360-430px une fois le DPR pris en compte
+     (ex: 1080/3 ≈ 360, 1080/2.625 ≈ 412) — d'où le seuil à 480px,
+     qui couvre cette classe d'appareils avec une marge de sécurité. */
+  @media (max-width: 480px) {
+    body { padding: 16px 10px; }
+    .wrap {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 20px;
+    }
+    .phone {
+      width: 100%;
+      max-width: 380px;
+    }
+    .panel {
+      width: 100%;
+      max-width: 380px;
+    }
+    .panel textarea { height: 200px; }
+  }
 </style>
 </head>
 <body>
